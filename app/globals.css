@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Palette mirrors Rollin's constants/theme.ts so the dashboard feels like the same product. */
+@theme {
+  --color-primary: #0058be;
+  --color-primary-container: #2170e4;
+  --color-on-primary: #ffffff;
+  --color-background: #f0f3fa;
+  --color-card: #ffffff;
+  --color-surface-container: #ecedf7;
+  --color-on-surface: #191b23;
+  --color-on-surface-variant: #424754;
+  --color-outline-variant: #c2c6d6;
+  --color-secondary-container: #fea619;
+  --color-on-secondary-container: #684000;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-verified: #10b981;
+  --color-verified-strong: #047857;
+
+}
+
+@theme inline {
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-surface);
+}
