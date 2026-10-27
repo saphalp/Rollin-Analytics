@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { formatNumber } from "@/lib/format";
+import { TrendDownIcon, TrendUpIcon } from "@/components/ui/icons";
 import { StatusIcon, type Status } from "@/components/ui/status";
 
 type Delta = {
@@ -29,10 +30,11 @@ export function StatCard({ label, value, hint, status, delta, children }: StatCa
       <p className="mt-1 text-3xl font-semibold text-on-surface">{display}</p>
       {delta && (
         <p
-          className="mt-1 text-xs font-medium"
+          className="mt-1 inline-flex items-center gap-1 text-xs font-medium"
           style={{ color: delta.direction === "flat" ? undefined : delta.good ? "var(--color-delta-good)" : "var(--color-error)" }}
         >
-          {delta.direction === "up" ? "▲ " : delta.direction === "down" ? "▼ " : ""}
+          {delta.direction === "up" && <TrendUpIcon className="size-3.5" />}
+          {delta.direction === "down" && <TrendDownIcon className="size-3.5" />}
           {delta.text}
         </p>
       )}

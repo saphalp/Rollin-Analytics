@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
+import { ArrowLeftIcon } from "@/components/ui/icons";
 import { ReportStatusBadge, ReportTargetBadge, TARGET_LABELS, formatReason } from "@/components/reports/report-status-badge";
 import { ReportTargetPreview } from "@/components/reports/report-target-preview";
 import { ReportReviewPanel } from "@/components/reports/report-review-panel";
@@ -31,8 +32,9 @@ export default async function ReportDetailPage({ params }: { params: Promise<{ i
         title={`${TARGET_LABELS[report.target_type]} report`}
         description={`Filed ${formatDateTime(report.created_at)}`}
         action={
-          <Link href="/reports" className="text-sm text-primary hover:underline">
-            ← All reports
+          <Link href="/reports" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+            <ArrowLeftIcon />
+            All reports
           </Link>
         }
       />

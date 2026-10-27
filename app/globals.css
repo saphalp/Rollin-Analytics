@@ -47,3 +47,22 @@ body {
   background: var(--color-background);
   color: var(--color-on-surface);
 }
+
+@theme {
+  --animate-delayed-fade-in: delayed-fade-in 200ms ease-out 300ms both;
+
+  @keyframes delayed-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation-duration: 2s;
+  }
+}
