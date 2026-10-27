@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 /* Palette mirrors Rollin's constants/theme.ts so the dashboard feels like the same product. */
-@theme {
+/* static: emit every variable, since charts reference some only via var() from JS. */
+@theme static {
   --color-primary: #0058be;
   --color-primary-container: #2170e4;
   --color-on-primary: #ffffff;
@@ -19,6 +20,23 @@
   --color-verified: #10b981;
   --color-verified-strong: #047857;
 
+  /* Charts. Categorical slots in fixed order (validated for color-vision deficiency on the
+     white card surface); never reorder or cycle past slot 4. */
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-series-3: #1baf7a;
+  --color-series-4: #eda100;
+  --color-series-other: #898781;
+  --color-chart-grid: #e1e0d9;
+  --color-chart-axis: #c3c2b7;
+  --color-chart-muted: #898781;
+
+  /* Status: reserved for good/bad meaning, always paired with an icon and label. */
+  --color-status-good: #0ca30c;
+  --color-status-warning: #fab219;
+  --color-status-serious: #ec835a;
+  --color-status-critical: #d03b3b;
+  --color-delta-good: #006300;
 }
 
 @theme inline {

@@ -2,25 +2,26 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ReportsTable } from "@/components/reports/reports-table";
-import { ReportStatusFilter } from "@/components/reports/report-status-filter";
+import { ReportFilters } from "@/components/reports/report-filters";
 import { getReports } from "@/lib/queries/reports";
-import type { ReportStatus } from "@/types/reports";
+import { REPORT_STATUSES, REPORT_TARGET_TYPES, type ReportStatus, type ReportTargetType } from "@/types/reports";
 
-const STATUSES: ReportStatus[] = ["open", "reviewing", "resolved", "dismissed"];
-
-export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const { status: raw } = await searchParams;
-  const status = STATUSES.includes(raw as ReportStatus) ? (raw as ReportStatus) : undefined;
-  const reports = await getReports(status);
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; type?: string }>;
+}) {
+  const params = await searchParams;
+  const status = REPORT_STATUSES.includes(params.status as ReportStatus) ? (params.status as ReportStatus) : undefined;
+  const type = REPORT_TARGET_TYPES.includes(params.type as ReportTargetType) ? (params.type as ReportTargetType) : undefined;
+  const reports = await getReports({ status, type });
 
   return (
     <>
-      <PageHeader title="Reports" description="User-to-user reports filed from the app" />
-      <Card action={<ReportStatusFilter current={status} />}>
+      <PageHeader title="Reports" description="Profile, activity and post reports filed from the app" />
+      <Card action={<ReportFilters status={status} type={type} />}>
         {reports == null ? (
-          <EmptyState title="Reporting isn't set up yet">
-            Apply <code>supabase/drafts/user_reports.sql</code> once the in-app report feature is ready.
-          </EmptyState>
+          <EmptyState title="Couldn't load reports" />
         ) : (
           <ReportsTable reports={reports} />
         )}

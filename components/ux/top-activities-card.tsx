@@ -12,7 +12,7 @@ export function TopActivitiesCard({ activities }: { activities: TopActivity[] })
         empty={<EmptyState title="No activity views recorded yet" />}
         columns={[
           { header: "Activity", cell: (r) => r.title },
-          { header: "Unique views", className: "text-right tabular-nums", cell: (r) => r.views },
+          { header: "Unique views", className: "whitespace-nowrap text-right tabular-nums", cell: (r) => r.views },
         ]}
       />
     </Card>

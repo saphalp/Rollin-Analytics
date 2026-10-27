@@ -1,44 +1,34 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { TableCount } from "@/types/metrics";
+import type { ActiveQuery, DailyCount, DbHealth, QueryStat, TableStat, UnusedIndex } from "@/types/metrics";
+import type { Result } from "@/types/result";
 
-// Tables from the Rollin schema (see Rollin docs/backend.md).
-export const TRACKED_TABLES = [
-  "profiles",
-  "activities",
-  "rsvps",
-  "activity_join_requests",
-  "follows",
-  "conversations",
-  "messages",
-  "notifications",
-  "rides_offered",
-  "ride_requests",
-  "ride_wanted_requests",
-  "driver_profiles",
-  "campus_events",
-  "host_reviews",
-  "user_reports",
-] as const;
+const SETUP_MESSAGE = "Postgres metrics aren't available for this project.";
 
-export async function getTableCounts(): Promise<TableCount[]> {
-  const supabase = createAdminClient();
-  return Promise.all(
-    TRACKED_TABLES.map(async (table) => {
-      const { count, error } = await supabase
-        .from(table)
-        .select("*", { count: "exact", head: true });
-      return { table, count: error ? null : count };
-    }),
-  );
+async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<Result<T>> {
+  const { data, error } = await createAdminClient().rpc(fn, args);
+  if (error) {
+    // PGRST202: PostgREST can't find the function, i.e. the SQL hasn't been applied yet.
+    const missing = error.code === "PGRST202" || error.code === "42883";
+    return missing
+      ? { ok: false, reason: "not_configured", message: SETUP_MESSAGE }
+      : { ok: false, reason: "error", message: error.message };
+  }
+  return { ok: true, data: data as T };
 }
 
-export async function getSignupsSince(days: number) {
-  const supabase = createAdminClient();
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-  const { count } = await supabase
+export const getDbHealth = () => rpc<DbHealth>("admin_db_health");
+export const getTableStats = () => rpc<TableStat[]>("admin_table_stats");
+export const getUnusedIndexes = () => rpc<UnusedIndex[]>("admin_unused_indexes");
+export const getActiveQueries = () => rpc<ActiveQuery[]>("admin_active_queries");
+export const getDailyCounts = (days = 30) => rpc<DailyCount[]>("admin_daily_counts", { p_days: days });
+
+export const getTopQueries = (order: "total" | "mean" | "calls", limit = 10) =>
+  rpc<QueryStat[]>("admin_top_queries", { p_order: order, p_limit: limit });
+
+export async function getTotalUsers() {
+  const { count, error } = await createAdminClient()
     .from("profiles")
-    .select("*", { count: "exact", head: true })
-    .gte("created_at", since);
-  return count ?? 0;
+    .select("*", { count: "exact", head: true });
+  return error ? null : count;
 }

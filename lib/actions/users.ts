@@ -12,6 +12,7 @@ export async function suspendUser(userId: string, hours: number) {
   const { error } = await supabase.auth.admin.updateUserById(userId, { ban_duration: `${hours}h` });
   if (error) throw error;
   revalidatePath(`/users/${userId}`);
+  revalidatePath("/reports", "layout");
 }
 
 export async function unsuspendUser(userId: string) {
@@ -20,4 +21,5 @@ export async function unsuspendUser(userId: string) {
   const { error } = await supabase.auth.admin.updateUserById(userId, { ban_duration: "none" });
   if (error) throw error;
   revalidatePath(`/users/${userId}`);
+  revalidatePath("/reports", "layout");
 }

@@ -9,9 +9,7 @@ export function AppEventsCard({ events }: { events: AppEvent[] | null }) {
   return (
     <Card title="Recent app events" description="Screen views, sessions and client errors">
       {events == null ? (
-        <EmptyState title="Event tracking isn't set up yet">
-          Apply <code>supabase/drafts/app_events.sql</code> and log events from the Rollin app.
-        </EmptyState>
+        <EmptyState title="No app events available" />
       ) : (
         <DataTable
           rows={events}

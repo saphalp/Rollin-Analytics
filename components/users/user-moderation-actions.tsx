@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { suspendUser, unsuspendUser } from "@/lib/actions/users";
 
 const DURATIONS = [
@@ -11,8 +12,12 @@ const DURATIONS = [
   { label: "Permanent", hours: 24 * 365 * 100 },
 ];
 
+type Duration = (typeof DURATIONS)[number];
+
 export function UserModerationActions({ userId, suspended }: { userId: string; suspended: boolean }) {
   const [pending, startTransition] = useTransition();
+  const [selected, setSelected] = useState<Duration | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (suspended) {
     return (
@@ -22,6 +27,19 @@ export function UserModerationActions({ userId, suspended }: { userId: string; s
     );
   }
 
+  const suspend = (d: Duration) =>
+    startTransition(async () => {
+      setError(null);
+      try {
+        await suspendUser(userId, d.hours);
+        setSelected(null);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong");
+      }
+    });
+
+  const permanent = selected?.label === "Permanent";
+
   return (
     <div className="flex flex-wrap gap-2">
       {DURATIONS.map((d) => (
@@ -30,14 +48,28 @@ export function UserModerationActions({ userId, suspended }: { userId: string; s
           variant="danger"
           disabled={pending}
           onClick={() => {
-            if (confirm(`Suspend this user for ${d.label.toLowerCase()}?`)) {
-              startTransition(() => suspendUser(userId, d.hours));
-            }
+            setError(null);
+            setSelected(d);
           }}
         >
           Suspend {d.label.toLowerCase()}
         </Button>
       ))}
+
+      <ConfirmDialog
+        open={selected !== null}
+        title={permanent ? "Suspend this user permanently?" : `Suspend this user for ${selected?.label.toLowerCase()}?`}
+        description={
+          permanent
+            ? "They won't be able to sign in until you lift the suspension."
+            : "They won't be able to sign in until the suspension ends. You can lift it early at any time."
+        }
+        confirmLabel="Suspend user"
+        pending={pending}
+        error={error}
+        onClose={() => setSelected(null)}
+        onConfirm={() => selected && suspend(selected)}
+      />
     </div>
   );
 }
